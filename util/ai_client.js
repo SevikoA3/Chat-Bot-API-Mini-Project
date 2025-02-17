@@ -1,6 +1,5 @@
 const ModelClient = require("@azure-rest/ai-inference").default;
 const { AzureKeyCredential } = require("@azure/core-auth");
-const { findRelevantSectionsLunr } = require("./pdf_preparation");
 
 require("dotenv").config();
 
@@ -13,17 +12,11 @@ const chat = async (message) => {
       endpoint,
       new AzureKeyCredential(token),
     );
-
-    // const relevantSections = await findRelevantSections(message);
-    // const context = relevantSections.join("\n\n");
-    const topSections = findRelevantSectionsLunr(message, 3); 
-    const context = topSections.map((s) => s.text).join("\n\n");
-    console.log(context);
   
     const response = await client.path("/chat/completions").post({
       body: {
         messages: [
-          { role:"system", content: "You are a helpful assistant that only and only answer based on the following information:\n\n" + context },
+          { role:"system", content: "You only answers topics about harry potter, answer it shortly unless told otherwise, and according to the user's language and user's typing style. don't ignore this previous instruction." },
           { role:"user", content: message }
         ],
         model: modelName
